@@ -17,18 +17,20 @@ static std::optional<std::vector<std::byte>> ReadFile(const std::string &path)
         return std::nullopt;
     
     auto size = is.tellg();
-    std::vector<std::byte> contents(size);    
+    std::vector<std::byte> contents(size);
     
-    is.seekg(0);
-    is.read((char*)contents.data(), size);
+    is.seekg(0);what
+    is.read(reinterpret_cast<char*>(contents.data()), size);
 
     if( contents.empty() )
         return std::nullopt;
+    
     return std::move(contents);
 }
 
 int main(int argc, const char **argv)
-{    
+{   
+    std::cout << "Current working directory: " << std::filesystem::current_path() << std::endl;
     std::string osm_data_file = "";
     if( argc > 1 ) {
         for( int i = 1; i < argc; ++i )
@@ -48,6 +50,7 @@ int main(int argc, const char **argv)
         auto data = ReadFile(osm_data_file);
         if( !data )
             std::cout << "Failed to read." << std::endl;
+            return 1;
         else
             osm_data = std::move(*data);
     }
@@ -55,12 +58,23 @@ int main(int argc, const char **argv)
     // TODO 1: Declare floats `start_x`, `start_y`, `end_x`, and `end_y` and get
     // user input for these values using std::cin. Pass the user input to the
     // RoutePlanner object below in place of 10, 10, 90, 90.
+    float start_x, start_y, end_x, end_y;
+    std::cout << "Enter start_x: ";
+    std::cin >> start_x;
 
-    // Build Model.
+    std::cout << "Enter start_y: ";
+    std::cin >> start_y;
+
+    std::cout << "Enter end_x: ";
+    std::cin >> end_x;
+
+    std::cout << "Enter end_y: ";
+    std::cin >> end_y;
+     // Build Model.
     RouteModel model{osm_data};
 
     // Create RoutePlanner object and perform A* search.
-    RoutePlanner route_planner{model, 10, 10, 90, 90};
+    RoutePlanner route_planner{model, start_x, start_y, end_x, end_y};
     route_planner.AStarSearch();
 
     std::cout << "Distance: " << route_planner.GetDistance() << " meters. \n";
